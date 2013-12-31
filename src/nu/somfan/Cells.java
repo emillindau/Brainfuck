@@ -30,12 +30,10 @@ public class Cells {
 
     public void addToCurrentCell() {
         mCells[mPointer]++;
-        System.out.println("Adding to cell: " + mPointer + "\nCurrent val: " + mCells[mPointer]);
     }
 
     public void substractFromCurrentCell() {
         mCells[mPointer]--;
-        System.out.println("Substracting to cell: " + mPointer + "\nCurrent val: " + mCells[mPointer]);
     }
 
     public void writeToCurrentCell(int value) {

@@ -1,10 +1,5 @@
 package nu.somfan;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Pattern;
-
 /**
  * Created by Emil on 2013-12-29.
  */
@@ -13,24 +8,28 @@ public class BrainFuck {
     private static final String EXIT = "EXIT";
     private static final String HELP = "HELP";
 
-    private static final String PATTERN = "^(\\-*\\+*\\<*\\>*\\[*\\]*\\.*,*)+$";
-
     private boolean mExit;
     private String mCmd;
     private Command mCommand;
 
     private BrainFuck() {}
 
+
     private void initialize() {
         mExit = false;
     }
 
+    /**
+     * The program-loop
+     */
     public void start() {
 
         initialize();
 
+        // Do until user chooses to exit
         while(!mExit) {
-            System.out.println("Please enter brainFuck-command..\nType 'help' for options");
+
+            // Read command input from user
             mCmd = BrainFuckReader.read();
 
             if(mCmd.equals(EXIT)) {
@@ -38,12 +37,16 @@ public class BrainFuck {
             } else if(mCmd.equals(HELP)) {
                 printHelp();
             } else {
+                // Handles command
                 checkCommand();
             }
         }
 
     }
 
+    /**
+     * Messy helper method for printing help
+     */
     private void printHelp() {
         System.out.println("Commands: ");
         System.out.println();
@@ -59,57 +62,26 @@ public class BrainFuck {
         System.out.println();
     }
 
+    /**
+     * Tries to read, parse and execute the command
+     */
     private void checkCommand() {
 
-        boolean mError = false;
+        String newCmd;
 
-        mCmd = mCmd.replace(" ", "");
-
-        if(Pattern.matches(PATTERN, mCmd)) {
-
-            LinkedList<Character> stack = new LinkedList<>();
-            for(int i = 0; i < mCmd.length(); i++) {
-                if(mCmd.charAt(i) == '[') {
-                    stack.addLast(mCmd.charAt(i));
-                }
-                if(mCmd.charAt(i) == ']') {
-                    if(stack.isEmpty()) {
-                        mError = true;
-                    } else {
-                        if(stack.removeLast() != '[') {
-                            mError = true;
-                        }
-                    }
-                }
-            }
-
-            if(!stack.isEmpty()) {
-                mError = true;
-            }
-
-            if(mError) {
-                System.out.println("Error - Illegal balancing character ie not a corresponding closing-bracket ']'");
-            } else {
-                mCommand = Command.valueOf(mCmd);
-                mCommand.execute();
-            }
-
-        } else {
-            System.out.println("Error - Illegal characters. Type 'help' for a list of commands");
+        try {
+            newCmd = BrainFuckReader.readCommand(mCmd);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
         }
+
+        // Execute
+        mCommand = Command.valueOf(newCmd);
+        mCommand.execute();
     }
 
     public static BrainFuck valueOf() {
         return new BrainFuck();
-    }
-
-    public static class BrainFuckReader {
-
-        private static Scanner mIn = new Scanner(System.in);
-
-        private static String read() {
-            return mIn.nextLine().toUpperCase();
-        }
-
     }
 }

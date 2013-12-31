@@ -29,6 +29,10 @@ public class Command {
         readCurrentCommand();
     }
 
+    /**
+     * Steps through the current command
+     * and executes the chars in order
+     */
     private void readCurrentCommand() {
         boolean next;
         char curr;
@@ -52,10 +56,15 @@ public class Command {
                     mCells.decrementPointer();
                     break;
                 case READ:
-                    mCells.writeToCurrentCell('A');
+                    try {
+                        char input = BrainFuckReader.readToCell();
+                        mCells.writeToCurrentCell(input);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case WRITE:
-                    System.out.println("print: " + mCells.getValueOfCurrentCell());
+                    System.out.println("" + mCells.getValueOfCurrentCell() + " : " + ((char)mCells.getValueOfCurrentCell()));
                     break;
                 case OPEN_BRACKET:
                     if(mCells.getValueOfCurrentCell() == 0) {
