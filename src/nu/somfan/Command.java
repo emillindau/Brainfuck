@@ -1,5 +1,7 @@
 package nu.somfan;
 
+import java.util.LinkedList;
+
 /**
  * Created by Emil on 2013-12-29.
  */
@@ -18,6 +20,7 @@ public class Command {
     private String mCommand;
     private int mPointer = 0;
     private boolean mExit = false;
+    private LinkedList<Integer> mBrackets = new LinkedList<>();
 
     private Command(String input) {
         mCommand = input;
@@ -41,6 +44,10 @@ public class Command {
 
             curr = getCurrentCommand();
             next = true;
+
+            if(mPointer == 94) {
+                System.out.print("");
+            }
 
             switch(curr) {
                 case PLUS:
@@ -69,13 +76,22 @@ public class Command {
                 case OPEN_BRACKET:
                     if(mCells.getValueOfCurrentCell() == 0) {
                         continueToNextClosingBracket();
-                        next = false;
+                        // next = false;
+                    } else {
+                        if(!mBrackets.contains(mPointer)) {
+                            mBrackets.addLast(mPointer);
+                        }
                     }
                     break;
                 case CLOSE_BRACKET:
                     if(mCells.getValueOfCurrentCell() != 0) {
                         stepBackToFirstOpeningBracket();
                         next = false;
+                    } else {
+                        // If we continue, remove latest, granted that the opening bracket was added
+                        if(!mBrackets.isEmpty()) {
+                            mBrackets.removeLast();
+                        }
                     }
                     break;
             }
@@ -100,21 +116,28 @@ public class Command {
     }
 
     private void continueToNextClosingBracket() {
-        for(int i = mPointer; i < mCommand.length(); i++) {
+        int counter = 1;
+
+        for(int i = mPointer+1; i < mCommand.length(); i++) {
+
+            if(counter == 0) {
+                return;
+            }
+            // We can encounter more opening-brackets on our way
+            // and therefore there should be corresponding closing ones
+            if(mCommand.charAt(i) == OPEN_BRACKET) {
+                counter++;
+            }
+
             if(mCommand.charAt(i) == CLOSE_BRACKET) {
                 mPointer = i;
-                return;
+                counter--;
             }
         }
     }
 
     private void stepBackToFirstOpeningBracket() {
-        for(int i = mPointer; i > 0; i--) {
-            if(mCommand.charAt(i) == OPEN_BRACKET) {
-                mPointer = i;
-                return;
-            }
-        }
+        mPointer = mBrackets.removeLast();
     }
 
     public static Command valueOf(String value) {
